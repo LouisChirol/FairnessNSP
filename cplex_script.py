@@ -1,14 +1,19 @@
 import cplex
 from cplex.exceptions import CplexError
+from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, Alignment
+from openpyxl.styles import Border, Side
+import pandas as pd
+
+I = range(1, 12)  # Adjust according to your actual range  # noqa
+J = range(1, 25)  # Adjust according to your actual range
+K = range(1, 4)   # Adjust according to your actual range
+part_time_I = range(1, 4)  # Indices of part-time agents in I
 
 
 def populate_by_row(prob):
     prob.objective.set_sense(prob.objective.sense.minimize)
-
-    I = range(1, 12)  # Adjust according to your actual range  # noqa
-    J = range(1, 25)  # Adjust according to your actual range
-    K = range(1, 4)   # Adjust according to your actual range
-    part_time_I = range(1, 4)  # Indices of part-time agents in I
 
     # Add your variables
     # For a 3D variable x[i][j][k], you'll flatten this in a single list or array
@@ -35,7 +40,7 @@ def populate_by_row(prob):
         )
         # Third and fourth constraints (staff >= 1 in the day shift, exactly 0 for weekends):
         day_variable_indices = [x_names.index(f"x{i},{j},3") for i in I]  # k=3 denotes day shift
-        if j % 6 == 0:  # TO VERIFY
+        if j % 6 != 0:  # TO VERIFY
             prob.linear_constraints.add(
                 lin_expr=[cplex.SparsePair(ind=day_variable_indices, val=variable_coefficients)],
                 senses=["G"],
@@ -145,18 +150,166 @@ def populate_by_row(prob):
         )
 
 
+def to_excel(values):
+
+    # Create the DataFrame structure
+    data = []
+    for i in I:  # For each nurse
+        row = []
+        for j in J:  # For each day
+            for k in K:  # For each shift
+                var_name = f"x{i},{j},{k}"
+                index = variable_names.index(var_name)
+                row.append(int(values[index]))  # Convert float to int for clarity
+        data.append(row)
+
+    # Convert list to DataFrame*
+    shifts = {1: 'M', 2: 'S', 3: 'T'}
+    days = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Week-end'}
+    columns = [f"Week_{(j//3) // 6 + 1} {days[(j//3) % 6 + 1]} {shifts[k]}" for j in range(0, 72, 3) for k in K]
+    df = pd.DataFrame(data, index=[f"Nurse {i}" for i in range(1, 12)], columns=columns)
+
+    # Duplicate the week-end columns into two separate columns for Saturday and Sunday
+    # First replace "Week-end" with "Saturday"
+    df.columns = df.columns.str.replace('Week-end', 'Saturday')
+    # Then duplicate the columns for Sunday, inserting them after Saturday
+    weeks = max(J) // 6
+    for w in range(weeks):
+        for i, c in enumerate(df.columns):
+            if 'Saturday' in c and f"Week_{w+1}" in c:
+                df.insert(i+3, c.replace('Saturday', 'Sunday'), df[c])
+
+    # Adding the total number of shifts per nurse
+    df['Total Shifts'] = df.sum(axis=1)
+
+    # Add a row for the number of nurses assigned per shift
+    total_nurses = df.sum(axis=0)
+    total_nurses.name = 'Total Nurses'
+    df = pd.concat([df, total_nurses.to_frame().T])
+    # Save as excel
+    df.to_excel('nurse_schedule_v1.xlsx')
+
+
+def openpyxl_formatting():
+
+    # df = pd.read_excel("nurse_schedule.xlsx")
+    wb = load_workbook("nurse_schedule_v1.xlsx")
+    ws = wb.active
+
+    # Assuming your data starts from column B (column A might be the index)
+    # And that the 'Week X' formatting needs to apply from column B onward
+    # Insert new rows for Week and Day headers
+    ws.insert_rows(1)
+    ws.insert_rows(1)
+
+    # Apply header information
+    header_row = 1  # Week headers
+    day_header_row = 2  # Day headers
+
+    # Set the initial week and day to manage merging
+    current_week = None
+    current_day = None
+    week_start_col = 2
+    day_start_col = 2
+
+    for col in range(2, ws.max_column):
+        # Extract week and day from the original cell
+        original_header = ws.cell(row=3, column=col).value  # assuming original headers start from row 3 now
+        if original_header:
+            week, day, shift = original_header.split(" ")
+            ws.cell(row=header_row, column=col).value = week
+            ws.cell(row=day_header_row, column=col).value = day
+            ws.cell(row=3, column=col).value = shift  # Shift goes back to row 3
+
+            # Manage merging for week
+            if week != current_week:
+                if current_week is not None:
+                    ws.merge_cells(start_row=header_row, start_column=week_start_col,
+                                   end_row=header_row, end_column=col-1)
+                current_week = week
+                week_start_col = col
+
+            # Manage merging for day
+            if day != current_day:
+                if current_day is not None:
+                    ws.merge_cells(start_row=day_header_row, start_column=day_start_col,
+                                   end_row=day_header_row, end_column=col-1)
+                current_day = day
+                day_start_col = col
+
+    # Final merge for the last week and day
+    if current_week:
+        ws.merge_cells(start_row=header_row, start_column=week_start_col,
+                       end_row=header_row, end_column=ws.max_column-1)
+    if current_day:
+        ws.merge_cells(start_row=day_header_row, start_column=day_start_col,
+                       end_row=day_header_row, end_column=ws.max_column-1)
+
+    # Set column widths and general styles as before
+    for i, col in enumerate(ws.columns):
+        # Skip first and last columns
+        if i == 0 or i == ws.max_column-1:
+            continue
+        ws.column_dimensions[get_column_letter(col[0].column)].width = 5
+
+    # Apply bold and centered style to day names
+    bold_centered = Font(bold=True)
+    center_alignment = Alignment(horizontal='center', vertical='center')
+    for col in range(2, ws.max_column + 1):
+        for row in [header_row, day_header_row]:
+            cell = ws.cell(row=row, column=col)
+            cell.font = bold_centered
+            cell.alignment = center_alignment
+
+    # Add a row with day-wise totals at the end
+    total_row = ws.max_row
+    new_row = ws.max_row + 1
+    ws.insert_rows(new_row)
+    ws.cell(row=new_row, column=1).value = "Total day-wise"
+    ws.cell(row=new_row, column=1).font = bold_centered
+    ws.cell(row=new_row, column=1).alignment = center_alignment
+    for col in range(2, ws.max_column, 3):
+        ws.cell(row=new_row, column=col).value = f"=SUM({get_column_letter(col)}{total_row}:{get_column_letter(col+2)}{total_row})"  # noqa
+        ws.cell(row=new_row, column=col).font = bold_centered
+        ws.cell(row=new_row, column=col).alignment = center_alignment
+    # Group the total values for each day together
+    for col in range(2, ws.max_column, 3):
+        ws.merge_cells(start_row=new_row, start_column=col, end_row=new_row, end_column=col+2)
+
+    # Define different border styles
+    thin_border = Border(left=Side(style='thin'), right=Side(style='thin'),
+                         top=Side(style='thin'), bottom=Side(style='thin'))
+    # Apply thin borders to all cells
+    for row in ws.iter_rows():
+        for cell in row:
+            cell.border = thin_border
+
+    # Save the changes
+    wb.save("nurse_schedule_openpyxl_v1.xlsx")
+
+
 if __name__ == "__main__":
     try:
         my_prob = cplex.Cplex()
         populate_by_row(my_prob)
+
         # Print number of variables and constraints
         print("Variables: ", my_prob.variables.get_num())
         print("Constraints: ", my_prob.linear_constraints.get_num())
         print("Total: ", my_prob.variables.get_num() + my_prob.linear_constraints.get_num())
-        # my_prob.solve()
+
+        print("Solving...")
+        my_prob.solve()
+
     except CplexError as exc:
         print(exc)
 
-    # print("Solution status = ", my_prob.solution.get_status(), ":", end=' ')
-    # print(my_prob.solution.status[my_prob.solution.get_status()])
-    # print("Solution value  = ", my_prob.solution.get_objective_value())
+    print("Solution status = ", my_prob.solution.get_status(), ":", end=' ')
+    print(my_prob.solution.status[my_prob.solution.get_status()])
+    print("Solution value  = ", my_prob.solution.get_objective_value())
+
+    variable_names = [f"x{i},{j},{k}" for i in I for j in J for k in K]
+    values = my_prob.solution.get_values(variable_names)
+
+    to_excel(values)
+    openpyxl_formatting()
