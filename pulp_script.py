@@ -47,21 +47,12 @@ def populate_by_row(prob):
         # C7
         for j in range(1, max(J) // 6):
             prob += lpSum(x[i, j * 6, k] + x[i, (j + 1) * 6, k] for k in K) == 1
+        # C8
+        for j in range(2, len(J)):
+            prob += lpSum(x[i, j, k]-x[i, j-1, k]-x[i, j+1, k] for k in K) <= 0
         # C9
-        window_size = 6
-        min_sum = 4
-        for j in range(1, len(J) - window_size + 1):
-            window_index = []
-            off_val = []
-            for index in range(window_size):
-                if (j + index) % 6 == 0:
-                    min_sum = 5
-                    window_index.extend([x[i, j + index, k] for k in K])
-                    off_val.extend([2 for k in K])
-                else:
-                    window_index.extend([x[i, j + index, k] for k in K])
-                    off_val.extend([1 for k in K])
-            prob += lpSum(window_index[i] * off_val[i] for i in range(len(window_index))) <= min_sum
+        for j in range(1, len(J) - 5 + 1):
+            prob += lpSum(x[i, j + index, k] for k in K for index in range(5)) <= 4
         # C10
         prob += lpSum(x[i, j, k] * weekend_coefs[j] for j in J for k in K) <= len(not_multiple_6) + 2 * len(multiple_6) - 9  # noqa
     # C11
