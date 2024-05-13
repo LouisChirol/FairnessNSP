@@ -75,45 +75,59 @@ def populate_by_row(prob):
                 senses=["E"],
                 rhs=[1]
             )
-        for j in range(0, max(J)//6):
-            # Eighth constraint (2 days off per week):
-            # off_indices = [x_names.index(f"x{i},{jj},{k}") for jj in range(6*j+1, 6*(j+1)+1) for k in K]  # 6 days per week  # noqa
-            off_indices = ([x_names.index(f"x{i},{jj},{k}") for jj in range(6*j+1, 6*j+6) for k in K]
-                           + [x_names.index(f"x{i},{6*j+6},{k}") for k in K])
-            off_val = [1 for jj in range(6*j+1, 6*j+6) for k in K] + [2 for k in K]
-            prob.linear_constraints.add(
-                lin_expr=[cplex.SparsePair(ind=off_indices, val=off_val)],
-                senses=["L"],
-                rhs=[5]
-            )
-            
-        window_size = 5  # Define the size of the sliding window
-        min_sum = 4  # Define the minimum sum
-        
-        for j in range(1, len(J) - window_size + 1):
-            window_index = []
-            off_val = []
-            for index in range(window_size):
-                if (j + index) % 6 == 0:
-                    min_sum = 5
-                    window_index.extend([x_names.index(f"x{i},{j+index},{k}") for k in K])
-                    off_val.extend([2 for k in K])
-                else:
-                    window_index.extend([x_names.index(f"x{i},{j+index},{k}") for k in K])
-                    off_val.extend([1 for k in K])
-            prob.linear_constraints.add(
-                lin_expr = [cplex.SparsePair(ind=window_index, val=off_val)],
-                senses = ["L"],
-                rhs = [min_sum]
-                )
-        # Ninth constraint (9 rest days per month):
-        month_off_indices = [x_names.index(f"x{i},{j},{k}") for j in J for k in K]
-        prob.linear_constraints.add(
-            lin_expr=[cplex.SparsePair(ind=month_off_indices, val=weekend_coefs)],
-            senses=["L"],
-            rhs=[len(not_multiple_6) + 2*len(multiple_6) - 9]
-        )
-    # Tenth constraint (off days for part-time agents):
+        # for j in range(0, max(J)//6):
+        #     # Eighth constraint (2 days off per week):
+        #     # off_indices = [x_names.index(f"x{i},{jj},{k}") for jj in range(6*j+1, 6*(j+1)+1) for k in K]  # 6 days per week  # noqa
+        #     off_indices = ([x_names.index(f"x{i},{jj},{k}") for jj in range(6*j+1, 6*j+6) for k in K]
+        #                    + [x_names.index(f"x{i},{6*j+6},{k}") for k in K])
+        #     off_val = [1 for jj in range(6*j+1, 6*j+6) for k in K] + [2 for k in K]
+        #     prob.linear_constraints.add(
+        #         lin_expr=[cplex.SparsePair(ind=off_indices, val=off_val)],
+        #         senses=["L"],
+        #         rhs=[5]
+        #     )
+
+        # window_size = 5  # Define the size of the sliding window
+        # min_sum = 5  # Define the minimum sum
+        # for j in range(1, len(J) - window_size + 1):
+        #     weekend_indices = [int(jj % 6 == 0) for jj in range(j, j+window_size) for k in K]
+        #     print(i, j, [jj for jj in range(j, j+window_size) for k in K], weekend_indices)
+        #     off_indices = [x_names.index(f"x{i},{j+index},{k}") for index in range(window_size) for k in K]
+        #     off_val = [1 + weekend_indices[index] for index in range(window_size) for k in K]
+        #     prob.linear_constraints.add(
+        #         lin_expr=[cplex.SparsePair(ind=off_indices, val=off_val)],
+        #         senses=["L"],
+        #         rhs=[min_sum]
+        #     )
+
+        # # Ninth constraint (5 consecutive days off):
+        # window_size = 5  # Define the size of the sliding window
+        # min_sum = 5  # Define the minimum sum
+        # for j in range(1, len(J) - window_size + 1):
+        #     window_index = []
+        #     off_val = []
+        #     for index in range(window_size):
+        #         if (j + index) % 6 == 0:
+        #             min_sum = 6
+        #             window_index.extend([x_names.index(f"x{i},{j+index},{k}") for k in K])
+        #             off_val.extend([2 for k in K])
+        #         else:
+        #             window_index.extend([x_names.index(f"x{i},{j+index},{k}") for k in K])
+        #             off_val.extend([1 for k in K])
+        #     prob.linear_constraints.add(
+        #         lin_expr=[cplex.SparsePair(ind=window_index, val=off_val)],
+        #         senses=["L"],
+        #         rhs=[min_sum]
+        #         )
+
+        # # Tenth constraint (9 rest days per month):
+        # month_off_indices = [x_names.index(f"x{i},{j},{k}") for j in J for k in K]
+        # prob.linear_constraints.add(
+        #     lin_expr=[cplex.SparsePair(ind=month_off_indices, val=weekend_coefs)],
+        #     senses=["L"],
+        #     rhs=[len(not_multiple_6) + 2*len(multiple_6) - 9]
+        # )
+    # Eleventh constraint (off days for part-time agents):
     for i in part_time_I:
         part_time_indices = [x_names.index(f"x{i},{j},{k}") for j in J for k in K]
         prob.linear_constraints.add(
@@ -121,7 +135,7 @@ def populate_by_row(prob):
             senses=["L"],
             rhs=[len(not_multiple_6) + 2*len(multiple_6) - 13]
         )
-    # Eleventh constraint (at least 36h rest for off days):
+    # Twelth constraint (at least 36h rest for off days):
     for i in I:
         for j in J[:-2]:
             off_indices = ([x_names.index(f"x{i},{j+1},{k}") for k in K]
@@ -168,6 +182,11 @@ def populate_by_row(prob):
             senses=["E"],
             rhs=[0]
         )
+
+    # # Objective function: maximize sum of all x_ijk
+    # prob.objective.set_sense(prob.objective.sense.maximize)
+    # obj_coeffs = [1] * len(x_names)
+    # prob.objective.set_linear(list(zip(x_names, obj_coeffs)))
 
 
 if __name__ == "__main__":
