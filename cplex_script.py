@@ -86,6 +86,26 @@ def populate_by_row(prob):
                 senses=["L"],
                 rhs=[5]
             )
+            
+        window_size = 5  # Define the size of the sliding window
+        min_sum = 4  # Define the minimum sum
+        
+        for j in range(1, len(J) - window_size + 1):
+            window_index = []
+            off_val = []
+            for index in range(window_size):
+                if (j + index) % 6 == 0:
+                    min_sum = 5
+                    window_index.extend([x_names.index(f"x{i},{j+index},{k}") for k in K])
+                    off_val.extend([2 for k in K])
+                else:
+                    window_index.extend([x_names.index(f"x{i},{j+index},{k}") for k in K])
+                    off_val.extend([1 for k in K])
+            prob.linear_constraints.add(
+                lin_expr = [cplex.SparsePair(ind=window_index, val=off_val)],
+                senses = ["L"],
+                rhs = [min_sum]
+                )
         # Ninth constraint (9 rest days per month):
         month_off_indices = [x_names.index(f"x{i},{j},{k}") for j in J for k in K]
         prob.linear_constraints.add(
