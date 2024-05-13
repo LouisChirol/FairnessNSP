@@ -13,6 +13,11 @@ def populate_by_row(prob):
     x_names = [f"x{i},{j},{k}" for i in I for j in J for k in K]
     prob.variables.add(names=x_names, types=["B"] * len(x_names))  # "I" denotes integer variables, "B" binary variables
 
+    # For later use in constraints 9 and 10
+    weekend_coefs = [1 + int(j % 6 == 0) for j in J for k in K]
+    multiple_6 = [j for j in J if j % 6 == 0]
+    not_multiple_6 = [j for j in J if j % 6 != 0]
+
     # Staffing constraints:
     variable_coefficients = [1] * len(I)  # Coefficient for each variable in the sum is 1
     for j in J:
@@ -64,7 +69,7 @@ def populate_by_row(prob):
         for j in range(1, max(J)//6):
             # Seventh constraint (week-end alternance):
             weekend_indices = ([x_names.index(f"x{i},{j*6},{k}") for k in K]  # saturday
-                               + [x_names.index(f"x{i},{j*6+1},{k}") for k in K])  # sunday
+                               + [x_names.index(f"x{i},{(j+1)*6},{k}") for k in K])  # sunday
             prob.linear_constraints.add(
                 lin_expr=[cplex.SparsePair(ind=weekend_indices, val=[1]*len(weekend_indices))],
                 senses=["E"],
@@ -72,26 +77,29 @@ def populate_by_row(prob):
             )
         for j in range(0, max(J)//6):
             # Eighth constraint (2 days off per week):
-            off_indices = [x_names.index(f"x{i},{jj},{k}") for jj in range(6*j+1, 6*(j+1)) for k in K]  # 6 days per week  # noqa
+            # off_indices = [x_names.index(f"x{i},{jj},{k}") for jj in range(6*j+1, 6*(j+1)+1) for k in K]  # 6 days per week  # noqa
+            off_indices = ([x_names.index(f"x{i},{jj},{k}") for jj in range(6*j+1, 6*j+6) for k in K]
+                           + [x_names.index(f"x{i},{6*j+6},{k}") for k in K])
+            off_val = [1 for jj in range(6*j+1, 6*j+6) for k in K] + [2 for k in K]
             prob.linear_constraints.add(
-                lin_expr=[cplex.SparsePair(ind=off_indices, val=[1]*len(off_indices))],
+                lin_expr=[cplex.SparsePair(ind=off_indices, val=off_val)],
                 senses=["L"],
-                rhs=[6*len(K)-2]
+                rhs=[5]
             )
         # Ninth constraint (9 rest days per month):
         month_off_indices = [x_names.index(f"x{i},{j},{k}") for j in J for k in K]
         prob.linear_constraints.add(
-            lin_expr=[cplex.SparsePair(ind=month_off_indices, val=[-1]*len(month_off_indices))],
+            lin_expr=[cplex.SparsePair(ind=month_off_indices, val=weekend_coefs)],
             senses=["L"],
-            rhs=[len(J)*len(K)-9]
+            rhs=[len(not_multiple_6) + 2*len(multiple_6) - 9]
         )
     # Tenth constraint (off days for part-time agents):
     for i in part_time_I:
         part_time_indices = [x_names.index(f"x{i},{j},{k}") for j in J for k in K]
         prob.linear_constraints.add(
-            lin_expr=[cplex.SparsePair(ind=part_time_indices, val=[1]*len(part_time_indices))],
+            lin_expr=[cplex.SparsePair(ind=part_time_indices, val=weekend_coefs)],
             senses=["L"],
-            rhs=[len(J)*len(K)-13]
+            rhs=[len(not_multiple_6) + 2*len(multiple_6) - 13]
         )
     # Eleventh constraint (at least 36h rest for off days):
     for i in I:
@@ -165,8 +173,8 @@ if __name__ == "__main__":
     variable_names = [f"x{i},{j},{k}" for i in I for j in J for k in K]
     values = my_prob.solution.get_values(variable_names)
 
-    # to_excel(values, variable_names)
-    # openpyxl_formatting()
+    to_excel(values, variable_names)
+    openpyxl_formatting()
 
     to_excel_v2(values, variable_names)
     openpyxl_formatting_v2()

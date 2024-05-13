@@ -50,7 +50,7 @@ def to_excel(values, variable_names):
 def openpyxl_formatting():
 
     # df = pd.read_excel("nurse_schedule.xlsx")
-    wb = load_workbook("nurse_schedule_v1.xlsx")
+    wb = load_workbook("export/nurse_schedule_v1.xlsx")
     ws = wb.active
 
     # Assuming your data starts from column B (column A might be the index)
@@ -198,7 +198,7 @@ def to_excel_v2(values, variable_names):
 
 
 def openpyxl_formatting_v2():
-    wb = load_workbook("nurse_schedule_v2.xlsx")
+    wb = load_workbook("export/nurse_schedule_v2.xlsx")
     ws = wb.active
 
     # Insert new rows for Week and Day headers
