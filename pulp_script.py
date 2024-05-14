@@ -11,15 +11,32 @@ def populate_by_row(prob):
     x = {(i, j, k): LpVariable(f"x{i},{j},{k}", cat=LpBinary) for i in I for j in J for k in K}
 
     # Define the objective function
-    d_pos = {i: LpVariable(f"d_pos{i}", lowBound=0, cat=LpContinuous) for i in I}
-    d_neg = {i: LpVariable(f"d_neg{i}", lowBound=0, cat=LpContinuous) for i in I}
+    d_pos_80 = {i: LpVariable(f"d_pos_80{i}", lowBound=0, cat=LpContinuous) for i in part_time_I}
+    d_neg_80 = {i: LpVariable(f"d_neg_80{i}", lowBound=0, cat=LpContinuous) for i in part_time_I}
+    d_pos = {i: LpVariable(f"d_pos{i}", lowBound=0, cat=LpContinuous) for i in I if i not in part_time_I}
+    d_neg = {i: LpVariable(f"d_neg{i}", lowBound=0, cat=LpContinuous) for i in I if i not in part_time_I}
     total_var = LpVariable("total_var", lowBound=0, cat=LpContinuous)
+    total_var_80 = LpVariable("total_var_80", lowBound=0, cat=LpContinuous)
 
-    prob += lpSum(d_pos[i] + d_neg[i] for i in I)
-    prob += lpSum(x[i, j, k] for i in I for j in J for k in K) == total_var
+    prob += lpSum(d_pos[i] + d_neg[i] for i in I if i not in part_time_I) + lpSum(d_pos_80[i] + d_neg_80[i] for i in part_time_I)
+    prob += lpSum(x[i, j, k] for i in I for j in J for k in K if i not in part_time_I) == total_var
+    prob += lpSum(x[i, j, k] for i in part_time_I for j in J for k in K) == total_var_80
 
     for i in I:
-        prob += len(I) * (lpSum(x[i, j, k] for j in J for k in K) - d_pos[i] + d_neg[i]) == total_var
+        if i in part_time_I:
+            prob += (len(part_time_I)) * (lpSum(x[i, j, k] for j in J for k in K) - d_pos_80[i] + d_neg_80[i]) == total_var_80
+        else:
+            prob += (len(I) - len(part_time_I)) * (lpSum(x[i, j, k] for j in J for k in K) - d_pos[i] + d_neg[i]) == total_var
+        
+    dev_pos = {k: LpVariable(f"dev_pos{k}", lowBound=0, cat=LpContinuous) for k in K}
+    dev_neg = {k: LpVariable(f"dev_neg{k}", lowBound=0, cat=LpContinuous) for k in K}
+    total_var_shift = LpVariable("total_var_shift", lowBound=0, cat=LpContinuous)
+    
+    prob += lpSum(dev_pos[k] + dev_neg[k] for k in K)
+    prob += lpSum(x[i, j, k] for i in I for j in J for k in K) == total_var_shift
+    
+    for k in K:
+        prob += len(K)*(lpSum(x[i, j, k] for i in I for j in J) - dev_pos[k] + dev_neg[k]) == total_var_shift
 
     # For later use in constraints 9 and 10
     multiple_6 = [j for j in J if j % 6 == 0]
