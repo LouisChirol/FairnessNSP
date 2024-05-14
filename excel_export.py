@@ -23,8 +23,9 @@ def to_excel(values, variable_names):
     # Convert list to DataFrame
     shifts = {1: 'M', 2: 'S', 3: 'T'}
     days = {1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Week-end'}
-    columns = [f"Semaine_{(j//3) // 6 + 1} {days[(j//3) % 6 + 1]} {shifts[k]}" for j in range(0, 72, 3) for k in K]
-    df = pd.DataFrame(data, index=[f"Agent {i}" for i in range(1, 12)], columns=columns)
+    columns = [f"Semaine_{(j//3) // 6 + 1} {days[(j//3) % 6 + 1]} {shifts[k]}"
+               for j in range(0, 3*len(J), 3) for k in K]
+    df = pd.DataFrame(data, index=[f"Agent {i}" for i in I], columns=columns)
 
     # Duplicate the week-end columns into two separate columns for Samedi and Dimanche
     # First replace "Week-end" with "Samedi"
@@ -33,7 +34,7 @@ def to_excel(values, variable_names):
     weeks = max(J) // 6
     for w in range(weeks):
         for i, c in enumerate(df.columns):
-            if 'Samedi' in c and f"Semaine_{w+1}" in c:
+            if 'Samedi' in c and f"Semaine_{w+1} " in c:
                 df.insert(i+3, c.replace('Samedi', 'Dimanche'), df[c])
 
     # Adding the total number of shifts per nurse
@@ -49,7 +50,6 @@ def to_excel(values, variable_names):
 
 def openpyxl_formatting():
 
-    # df = pd.read_excel("nurse_schedule.xlsx")
     wb = load_workbook("export/nurse_schedule_v1.xlsx")
     ws = wb.active
 
@@ -163,7 +163,8 @@ def to_excel_v2(values, variable_names):
 
     # Convert list to DataFrame
     days = {1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Week-end'}
-    columns = [f"Semaine_{(j//3) // 6 + 1} {days[(j//3) % 6 + 1]}" for j in range(0, 72, 3)]
+    columns = [f"Semaine_{(j//3) // 6 + 1} {days[(j//3) % 6 + 1]}"
+               for j in range(0, 3*len(J), 3)]
     index_names = []
     for i in I:
         if i in part_time_I:
@@ -179,7 +180,7 @@ def to_excel_v2(values, variable_names):
     weeks = max(J) // 6
     for w in range(weeks):
         for i, c in enumerate(df.columns):
-            if 'Samedi' in c and f"Semaine_{w+1}" in c:
+            if 'Samedi' in c and f"Semaine_{w+1} " in c:
                 df.insert(i+1, c.replace('Samedi', 'Dimanche'), df[c])
 
     # Add a row for the number of nurses assigned per shift (excluding rest days)

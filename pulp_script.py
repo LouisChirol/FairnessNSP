@@ -1,6 +1,7 @@
 from pulp import LpMaximize, LpMinimize, LpProblem, LpVariable, lpSum, LpBinary, LpContinuous, LpInteger, LpStatus, value  # noqa
 from excel_export import to_excel, openpyxl_formatting, to_excel_v2, openpyxl_formatting_v2  # noqa
-from parameters import I, J, K, part_time_I
+from parameters import I, J, K, part_time_I, nb_semaines
+import os
 
 
 def populate_by_row(prob):
@@ -21,7 +22,6 @@ def populate_by_row(prob):
         prob += len(I) * (lpSum(x[i, j, k] for j in J for k in K) - d_pos[i] + d_neg[i]) == total_var
 
     # For later use in constraints 9 and 10
-    weekend_coefs = {j: 1 + int(j % 6 == 0) for j in J}
     multiple_6 = [j for j in J if j % 6 == 0]
     not_multiple_6 = [j for j in J if j % 6 != 0]
 
@@ -37,7 +37,7 @@ def populate_by_row(prob):
         # C4
         else:
             prob += lpSum(x[i, j, 3] for i in I) == 0
-        for i in range(1, 12):
+        for i in I:
             # C5
             prob += lpSum(x[i, j, k] for k in K) <= 1
             # C6
@@ -45,7 +45,7 @@ def populate_by_row(prob):
                 prob += x[i, j, 2] + x[i, j + 1, 1] <= 1
     for i in I:
         # C7
-        for j in range(1, max(J) // 6):
+        for j in range(1, nb_semaines):
             prob += lpSum(x[i, j * 6, k] + x[i, (j + 1) * 6, k] for k in K) == 1
         # C8
         for j in range(2, len(J)):
@@ -54,10 +54,12 @@ def populate_by_row(prob):
         for j in range(1, len(J) - 5 + 1):
             prob += lpSum(x[i, j + index, k] for k in K for index in range(5)) <= 4
         # C10
-        prob += lpSum(x[i, j, k] * weekend_coefs[j] for j in J for k in K) <= len(not_multiple_6) + 2 * len(multiple_6) - 9  # noqa
+        prob += (lpSum(x[i, j, k] * (1 + int(j % 6 == 0)) for j in J for k in K)
+                 <= len(not_multiple_6) + 2 * len(multiple_6) - (9*(nb_semaines//4)))
     # C11
     for i in part_time_I:
-        prob += lpSum(x[i, j, k] * weekend_coefs[j] for j in J for k in K) <= len(not_multiple_6) + 2 * len(multiple_6) - 13  # noqa
+        prob += (lpSum(x[i, j, k] * (1 + int(j % 6 == 0)) for j in J for k in K)
+                 <= len(not_multiple_6) + 2 * len(multiple_6) - (13*(nb_semaines//4)))
     # C12
     for i in I:
         for j in J[:-2]:
@@ -85,6 +87,7 @@ if __name__ == "__main__":
     variable_names = [f"x{i},{j},{k}" for i in I for j in J for k in K]
     values = [value(x[i, j, k]) for i in I for j in J for k in K]
 
+    os.makedirs("export", exist_ok=True)
     to_excel(values, variable_names)
     openpyxl_formatting()
 
