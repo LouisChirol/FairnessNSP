@@ -4,7 +4,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment
 from openpyxl.styles import Border, Side
 import pandas as pd
-from parameters import I, J, K, part_time_I
+from parameters import I, J, K, part_time_I, full_time_I, nb_part_time_agents
 
 
 def to_excel(values, variable_names):
@@ -289,5 +289,15 @@ def openpyxl_formatting_v2():
     for row in range(1, ws.max_row-3):
         ws.cell(row=row, column=ws.max_column-4).font = bold_centered
 
+    # Paint in pink the first shift of first agent at 80%
+    for i in part_time_I:
+        ws.cell(row=2+i, column=2+7*(i-1)).fill = openpyxl.styles.PatternFill(start_color="FFC0CB",
+                                                                              end_color="FFC0CB",
+                                                                              fill_type="solid")
+    # Paint in orange the first shift of first agent at 100%
+    for i in full_time_I:
+        ws.cell(row=2+i, column=2+7*(i-nb_part_time_agents-1)).fill = openpyxl.styles.PatternFill(start_color="FFA500",
+                                                                                                  end_color="FFA500",
+                                                                                                  fill_type="solid")
     # Save the changes
     wb.save("export/nurse_schedule_openpyxl_v2.xlsx")
