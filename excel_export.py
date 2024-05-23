@@ -299,10 +299,18 @@ def openpyxl_formatting_v2():
     #     ws.cell(row=2+i, column=2+7*(i-nb_part_time_agents-1)).fill = openpyxl.styles.PatternFill(start_color="FFA500",  # noqa
     #                                                                                               end_color="FFA500",
     #                                                                                               fill_type="solid")
+
     # Paint in orange the first shift of first agent
+    multiple_6 = [j for j in J if j % 6 == 0]
+    not_multiple_6 = [j for j in J if j % 6 != 0]
+    nb_value_cols = 2 * len(multiple_6) + len(not_multiple_6)
+
     for i in I:
-        ws.cell(row=2+i, column=2+7*(i-1)).fill = openpyxl.styles.PatternFill(start_color="FFA500",
-                                                                              end_color="FFA500",
-                                                                              fill_type="solid")
+        print(i, (2+(7*(i-1)), nb_value_cols, (2+(7*(i-1))) % nb_value_cols))
+        ws.cell(row=2+i, column=(2+(7*(i-1))) % nb_value_cols).fill = openpyxl.styles.PatternFill(
+                                                                                                start_color="FFA500",
+                                                                                                end_color="FFA500",
+                                                                                                fill_type="solid"
+                                                                                                )
     # Save the changes
     wb.save("export/nurse_schedule_openpyxl_v2.xlsx")
