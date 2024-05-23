@@ -14,6 +14,13 @@ def minimize_objective(prob, x):
     prob += lpSum(x[i, j, k] for i in I for j in J for k in K)
 
 
+def composite_objective(prob, x):
+    """Maximize the number of shifts but minimize for weekend shifts"""
+    prob.sense = LpMaximize
+    prob += (lpSum(x[i, j, k] for i in I for j in J if j % 6 != 0 for k in K)
+             - lpSum(x[i, j, k] for i in I for j in J if j % 6 == 0 for k in K))
+
+
 def jad_objective(prob, x):
     prob.sense = LpMinimize
     d_pos_80 = {i: LpVariable(f"d_pos_80{i}", lowBound=0, cat=LpContinuous) for i in part_time_I}
@@ -53,7 +60,7 @@ def populate_by_row(prob):
     x = {(i, j, k): LpVariable(f"x{i},{j},{k}", cat=LpBinary) for i in I for j in J for k in K}
 
     # Define the objective function
-    maximize_objective(prob, x)
+    composite_objective(prob, x)
 
     # For later use in constraints 9 and 10
     multiple_6 = [j for j in J if j % 6 == 0]
@@ -61,16 +68,23 @@ def populate_by_row(prob):
 
     # Staffing constraints
     for j in J:
-        # C1 (morning shift constraint)
-        prob += lpSum(x[i, j, 1] for i in I) >= 3
-        # C2 (evening shift constraint)
-        prob += lpSum(x[i, j, 2] for i in I) >= 2
-        # C3 (day shift constraint)
+        # Week days
         if j % 6 != 0:
+            # C1 (morning shift constraint)
+            prob += lpSum(x[i, j, 1] for i in I) >= 3
+            # C2 (evening shift constraint)
+            prob += lpSum(x[i, j, 2] for i in I) >= 2
+            # C3 (day shift constraint)
             prob += lpSum(x[i, j, 3] for i in I) >= 1
-        # C4 (no day shift on weekends)
+        # Weekends
         else:
+            # C1 (morning shift constraint)
+            prob += lpSum(x[i, j, 1] for i in I) >= 3
+            # C2 (evening shift constraint)
+            prob += lpSum(x[i, j, 2] for i in I) >= 2
+            # C3 (day shift constraint)
             prob += lpSum(x[i, j, 3] for i in I) == 0
+
         for i in I:
             # C5 (no more than one shift per day per agent)
             prob += lpSum(x[i, j, k] for k in K) <= 1
