@@ -105,7 +105,7 @@ def populate_by_row(prob):
         # prob += (lpSum(x[i, j, k] * (1 + int(j % 6 == 0)) for j in J for k in K)
         #          <= len(not_multiple_6) + 2 * len(multiple_6) - (9*(nb_semaines//4)))
         prob += (lpSum(x[i, j, k] * (1 + int(j % 6 == 0)) for j in J for k in K)
-                 <= len(not_multiple_6) + 2 * len(multiple_6) - (9*(nb_semaines/4)))
+                 <= len(not_multiple_6) + 2 * len(multiple_6) - (9*(nb_semaines/4)) + 1)
     # # C11 (days off constraint for part-time agents)
     # for i in part_time_I:
     #     prob += (lpSum(x[i, j, k] * (1 + int(j % 6 == 0)) for j in J for k in K)
