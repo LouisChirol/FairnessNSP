@@ -306,7 +306,6 @@ def openpyxl_formatting_v2():
     nb_value_cols = 2 * len(multiple_6) + len(not_multiple_6)
 
     for i in I:
-        print(i, (2+(7*(i-1)), nb_value_cols, (2+(7*(i-1))) % nb_value_cols))
         ws.cell(row=2+i, column=(2+(7*(i-1))) % nb_value_cols).fill = openpyxl.styles.PatternFill(
                                                                                                 start_color="FFA500",
                                                                                                 end_color="FFA500",

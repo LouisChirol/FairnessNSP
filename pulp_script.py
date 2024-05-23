@@ -15,7 +15,7 @@ def minimize_objective(prob, x):
 
 
 def composite_objective(prob, x):
-    """Maximize the number of shifts but minimize for weekend shifts"""
+    """Maximize the number of agents for week shifts but minimize it for weekend shifts"""
     prob.sense = LpMaximize
     prob += (lpSum(x[i, j, k] for i in I for j in J if j % 6 != 0 for k in K)
              - lpSum(x[i, j, k] for i in I for j in J if j % 6 == 0 for k in K))
@@ -129,15 +129,12 @@ def populate_by_row(prob):
     #         for k in K:
     #             prob += (x[i, j, k] == x[next_i, next_j, k])
     # No need to differentiate between part-time and full-time agents
-    for i in reversed(I[1:]):
-        last_i = i-1
-        for j in J:
-            last_j = j - 6
-            if last_j < 1:
-                last_j += len(J)
+    for idx, i in enumerate(I[:-1]):
+        next_i = I[(idx + 1) % len(I)]
+        for j_idx, j in enumerate(J):
+            next_j = J[(j_idx + 6) % len(J)]
             for k in K:
-                prob += (x[i, j, k] == x[last_i, last_j, k])
-
+                prob += (x[i, j, k] == x[next_i, next_j, k])
     return x
 
 
