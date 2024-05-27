@@ -1,6 +1,6 @@
 from pulp import LpMaximize, LpMinimize, LpProblem, LpVariable, lpSum, LpBinary, LpContinuous, LpInteger, LpStatus, value  # noqa
 from excel_export import to_excel, openpyxl_formatting, to_excel_v2, openpyxl_formatting_v2  # noqa
-from HospitalShift.parameters.parameters import I, J, K, nb_semaines, part_time_I, full_time_I  # noqa
+from HospitalShift.parameters.parametres_inf import I, J, K, nb_semaines, part_time_I, full_time_I  # noqa
 import os
 
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     os.makedirs("export", exist_ok=True)
     to_excel(values, variable_names, dest_path="export/excel_inf_v1.xlsx")
-    openpyxl_formatting(src_path="export/excel_test_v1.xlsx", dest_path="export/trame_test_v1.xlsx")
+    openpyxl_formatting(src_path="export/excel_inf_v1.xlsx", dest_path="export/trame_inf_v1.xlsx")
 
     to_excel_v2(values, variable_names, dest_path="export/excel_inf_v2.xlsx")
-    openpyxl_formatting_v2(src_path="export/excel_test_v2.xlsx", dest_path="export/trame_test_v2.xlsx")
+    openpyxl_formatting_v2(src_path="export/excel_inf_v2.xlsx", dest_path="export/trame_inf_v2.xlsx")

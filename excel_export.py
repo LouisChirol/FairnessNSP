@@ -4,10 +4,10 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment
 from openpyxl.styles import Border, Side
 import pandas as pd
-from parameters import I, J, K  # , part_time_I, full_time_I, nb_part_time_agents
+from HospitalShift.parameters.parameters import I, J, K  # , part_time_I, full_time_I, nb_part_time_agents
 
 
-def to_excel(values, variable_names):
+def to_excel(values, variable_names, dest_path="export/nurse_schedule.xlsx"):
 
     # Create the DataFrame structure
     data = []
@@ -45,12 +45,13 @@ def to_excel(values, variable_names):
     total_nurses.name = 'Total Agents'
     df = pd.concat([df, total_nurses.to_frame().T])
     # Save as excel
-    df.to_excel('export/nurse_schedule_v1.xlsx')
+    df.to_excel(dest_path)
 
 
-def openpyxl_formatting():
+def openpyxl_formatting(src_path="export/nurse_schedule_v1.xlsx",
+                        dest_path="export/nurse_schedule_openpyxl_v1.xlsx"):
 
-    wb = load_workbook("export/nurse_schedule_v1.xlsx")
+    wb = load_workbook(src_path)
     ws = wb.active
 
     # Assuming your data starts from column B (column A might be the index)
@@ -142,10 +143,10 @@ def openpyxl_formatting():
             cell.border = thin_border
 
     # Save the changes
-    wb.save("export/nurse_schedule_openpyxl_v1.xlsx")
+    wb.save(dest_path)
 
 
-def to_excel_v2(values, variable_names):
+def to_excel_v2(values, variable_names, dest_path="export/nurse_schedule_v2.xlsx"):
     """The excel file here will have only one value per day, with a string value for the shift type."""
     shifts = {1: 'M', 2: 'S', 3: 'T'}
     # Create the DataFrame structure
@@ -195,11 +196,12 @@ def to_excel_v2(values, variable_names):
         df = pd.concat([df, total_nurses.to_frame().T])
     df['Total R'] = df.apply(lambda row: sum([1 for shift in row if shift == "R"]), axis=1)
     # Save as excel
-    df.to_excel('export/nurse_schedule_v2.xlsx')
+    df.to_excel(dest_path)
 
 
-def openpyxl_formatting_v2():
-    wb = load_workbook("export/nurse_schedule_v2.xlsx")
+def openpyxl_formatting_v2(src_path="export/nurse_schedule_v2.xlsx",
+                           dest_path="export/nurse_schedule_openpyxl_v2.xlsx"):
+    wb = load_workbook(src_path)
     ws = wb.active
 
     # Insert new rows for Week and Day headers
@@ -312,4 +314,4 @@ def openpyxl_formatting_v2():
                                                                                                 fill_type="solid"
                                                                                                 )
     # Save the changes
-    wb.save("export/nurse_schedule_openpyxl_v2.xlsx")
+    wb.save(dest_path)
