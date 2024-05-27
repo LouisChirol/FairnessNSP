@@ -1,6 +1,6 @@
 from pulp import LpMaximize, LpMinimize, LpProblem, LpVariable, lpSum, LpBinary, LpContinuous, LpInteger, LpStatus, value  # noqa
-from excel_export import to_excel, openpyxl_formatting, to_excel_v2, openpyxl_formatting_v2  # noqa
-from HospitalShift.parameters.parametres_as import I, J, K, nb_semaines, part_time_I, full_time_I  # noqa
+from excel_export.excel_export_as import to_excel, openpyxl_formatting, to_excel_v2, openpyxl_formatting_v2  # noqa
+from parameters.parametres_as import I, J, K, nb_semaines, part_time_I, full_time_I  # noqa
 import os
 
 
@@ -75,15 +75,22 @@ def populate_by_row(prob):
             # C2 (evening shift constraint)
             prob += lpSum(x[i, j, 2] for i in I) >= 2
             # C3 (day shift constraint)
-            prob += lpSum(x[i, j, 3] for i in I) >= 1
+            prob += lpSum(x[i, j, 3] for i in I) == 0
         # Weekends
         else:
-            # C1 (morning shift constraint)
-            prob += lpSum(x[i, j, 1] for i in I) >= 3
-            # C2 (evening shift constraint)
-            prob += lpSum(x[i, j, 2] for i in I) >= 2
+            # C1b (total week-end shift constraint)
+            prob += lpSum(x[i, j, 1] + x[i, j, 2] for i in I) >= 4
+
+            # prob += lpSum(x[i, j, 1] for i in I) - lpSum(x[i, j, 2] for i in I) >= 1
+            # C1 (morning week-end shift constraint)
+            prob += lpSum(x[i, j, 2] for i in I) >= 1
+            # # C2 (evening week-end shift constraint)
+            prob += lpSum(x[i, j, 2] for i in I) >= 1
+            prob += lpSum(x[i, j, 2] for i in I) <= 2
             # C4 (day shift constraint)
             prob += lpSum(x[i, j, 3] for i in I) == 0
+            # for i in I:
+            #     prob += x[i, j, 1] - x[i, j, 2] >= 0
 
         for i in I:
             # C5 (no more than one shift per day per agent)
@@ -158,8 +165,8 @@ if __name__ == "__main__":
     values = [value(x[i, j, k]) for i in I for j in J for k in K]
 
     os.makedirs("export", exist_ok=True)
-    to_excel(values, variable_names, dest_path="export/excel_inf_v1.xlsx")
+    to_excel(values, variable_names, dest_path="export/excel_as_v1.xlsx")
     openpyxl_formatting(src_path="export/excel_as_v1.xlsx", dest_path="export/trame_as_v1.xlsx")
 
-    to_excel_v2(values, variable_names, dest_path="export/excel_inf_v2.xlsx")
+    to_excel_v2(values, variable_names, dest_path="export/excel_as_v2.xlsx")
     openpyxl_formatting_v2(src_path="export/excel_as_v2.xlsx", dest_path="export/trame_as_v2.xlsx")

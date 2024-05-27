@@ -1,6 +1,6 @@
 from pulp import LpMaximize, LpMinimize, LpProblem, LpVariable, lpSum, LpBinary, LpContinuous, LpInteger, LpStatus, value  # noqa
-from excel_export import to_excel, openpyxl_formatting, to_excel_v2, openpyxl_formatting_v2  # noqa
-from HospitalShift.parameters.parametres_inf import I, J, K, nb_semaines, part_time_I, full_time_I  # noqa
+from excel_export.excel_export_inf import to_excel, openpyxl_formatting, to_excel_v2, openpyxl_formatting_v2  # noqa
+from parameters.parametres_inf import I, J, K, nb_semaines, part_time_I, full_time_I  # noqa
 import os
 
 

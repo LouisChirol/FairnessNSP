@@ -1,6 +1,6 @@
 nb_semaines = 10
 nb_shifts = 3
-nb_agents = 11
+nb_agents = 9
 nb_part_time_agents = 2
 I = range(1, nb_agents+1)  # Adjust according to your actual range  # noqa
 J = range(1, nb_semaines*6+1)  # Adjust according to your actual range
