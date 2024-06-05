@@ -1,6 +1,6 @@
 from pulp import LpMaximize, LpMinimize, LpProblem, LpVariable, lpSum, LpBinary, LpContinuous, LpInteger, LpStatus, value  # noqa
-from excel_export.excel_export_inf import to_excel, openpyxl_formatting, to_excel_v2, openpyxl_formatting_v2  # noqa
-from parameters.parametres_inf import I, J, K, nb_semaines, part_time_I, full_time_I  # noqa
+from legacy.excel_export_base import to_excel, openpyxl_formatting, to_excel_v2, openpyxl_formatting_v2  # noqa
+from legacy.parameters import I, J, K, nb_semaines, part_time_I, full_time_I  # noqa
 import os
 
 
@@ -135,11 +135,6 @@ def populate_by_row(prob):
             next_j = J[(j_idx + 6) % len(J)]
             for k in K:
                 prob += (x[i, j, k] == x[next_i, next_j, k])
-
-    # C14: no more than 3 consecutive days off
-    for i in I:
-        for j in J[:-2]:
-            prob += lpSum(x[i, j + index, k] for k in K for index in range(3)) <= 3
     return x
 
 
@@ -162,9 +157,9 @@ if __name__ == "__main__":
     variable_names = [f"x{i},{j},{k}" for i in I for j in J for k in K]
     values = [value(x[i, j, k]) for i in I for j in J for k in K]
 
-    os.makedirs("export", exist_ok=True)
+    os.makedirs("output", exist_ok=True)
     to_excel(values, variable_names, dest_path="export/excel_inf_v1.xlsx")
-    openpyxl_formatting(src_path="export/excel_inf_v1.xlsx", dest_path="export/trame_inf_v1.xlsx")
+    openpyxl_formatting(src_path="output/excel_test_v1.xlsx", dest_path="output/trame_test_v1.xlsx")
 
     to_excel_v2(values, variable_names, dest_path="export/excel_inf_v2.xlsx")
-    openpyxl_formatting_v2(src_path="export/excel_inf_v2.xlsx", dest_path="export/trame_inf_v2.xlsx")
+    openpyxl_formatting_v2(src_path="output/excel_test_v2.xlsx", dest_path="output/trame_test_v2.xlsx")

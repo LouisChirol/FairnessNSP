@@ -4,7 +4,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment
 from openpyxl.styles import Border, Side
 import pandas as pd
-from parameters.parametres_inf import I, J, K  # , part_time_I, full_time_I, nb_part_time_agents
+from legacy.parameters import I, J, K  # , part_time_I, full_time_I, nb_part_time_agents
 
 
 def to_excel(values, variable_names, dest_path="export/nurse_schedule.xlsx"):
