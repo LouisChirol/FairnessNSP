@@ -4,10 +4,13 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment
 from openpyxl.styles import Border, Side
 import pandas as pd
-from parameters.parametres_as_tp import I, J, K, part_time_I, full_time_I, nb_part_time_agents, nb_shifts  # noqa
 
 
-def to_excel_v2(values, variable_names, dest_path="export/nurse_schedule_v2.xlsx"):
+def to_excel(
+        values, variable_names,
+        I, J, K, part_time_I, nb_shifts,
+        dest_path="export/nurse_schedule.xlsx"
+             ):
     """The excel file here will have only one value per day, with a string value for the shift type."""
     shifts = {1: 'M', 2: 'S', 3: 'T'}
     # Create the DataFrame structure
@@ -64,8 +67,11 @@ def to_excel_v2(values, variable_names, dest_path="export/nurse_schedule_v2.xlsx
     df.to_excel(dest_path)
 
 
-def openpyxl_formatting_v2(src_path="export/nurse_schedule_v2.xlsx",
-                           dest_path="export/nurse_schedule_openpyxl_v2.xlsx"):
+def openpyxl_formatting(
+        I, J,
+        src_path="export/nurse_schedule.xlsx",
+        dest_path="export/nurse_schedule_openpyxl.xlsx"
+        ):
     wb = load_workbook(src_path)
     ws = wb.active
 
