@@ -1,5 +1,5 @@
 from pulp import LpMaximize, LpProblem, LpVariable, lpSum, LpBinary, LpStatus, value
-from excel_export.excel_export import to_excel, openpyxl_formatting
+from excel_export import to_excel, openpyxl_formatting
 from objectives import composite_objective
 from parameters.parametres_as import I, J, K, nb_shifts, nb_weeks, part_time_I, full_time_I
 import os
