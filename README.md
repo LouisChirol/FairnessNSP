@@ -1,6 +1,6 @@
 # HospitalShift: A Nurse shift problem (NSP) LP optimization
-This repo contains a code to build schedules for a set of agents under linear constraints.
-It uses an Integer Linear Programming (ILP) optimization problem formalism.
+This repo contains a code to build schedules for a set of agents under linear constraints, following this [paper](https://overleaf.com). We recommend reading it before running the code.
+The project revolves aroung the Integer Linear Programming (ILP) optimization problem formalism.
 The problem is solved using the [PuLP](https://pypi.org/project/PuLP/) library.
 
 The script is primarily intended to design schedules for a hospital service under a list of its specific constraints, but can be adapted for any similar problem.
@@ -10,6 +10,9 @@ It enabled to ensure the compliance of the computed solutions with the expectati
 Two sets of agents are dealt with in the repo:
 - nurses (refered to with the "inf" suffix in filenames, standing for "infirmier" in French)
 - caregivers (refered to with the "as" suffix in filenames, standing for "aide-soignant" in French)
+
+The output `.xlsx` file should look like the following screenshot:
+<img src="imgs/schedule_screen_example.png">
 
 
 # Overview of files
