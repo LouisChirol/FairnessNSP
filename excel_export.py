@@ -3,13 +3,14 @@ from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Alignment
 from openpyxl.styles import Border, Side
+import os
 import pandas as pd
 
 
 def to_excel(
         values, variable_names,
         I, J, K, part_time_I, nb_shifts,
-        dest_path="export/nurse_schedule.xlsx"
+        dest_path="output/nurses_schedule.xlsx"
              ):
     """The excel file here will have only one value per day, with a string value for the shift type."""
     shifts = {1: 'M', 2: 'S', 3: 'T'}
@@ -69,8 +70,8 @@ def to_excel(
 
 def openpyxl_formatting(
         I, J,
-        src_path="export/nurse_schedule.xlsx",
-        dest_path="export/nurse_schedule_openpyxl.xlsx"
+        src_path="output/nurses_schedule.xlsx",
+        dest_path="output/nurses_schedule.xlsx"
         ):
     wb = load_workbook(src_path)
     ws = wb.active
@@ -180,3 +181,13 @@ def openpyxl_formatting(
                                                                                                 )
     # Save the changes
     wb.save(dest_path)
+
+
+def export_schedule(
+        values, variable_names,
+        I, J, K, part_time_I, nb_shifts,
+        dest_path="output/nurses_schedule.xlsx"
+        ):
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    to_excel(values, variable_names, I, J, K, part_time_I, nb_shifts, dest_path)
+    openpyxl_formatting(I, J, dest_path, dest_path)

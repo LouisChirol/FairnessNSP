@@ -1,8 +1,8 @@
 from pulp import LpMaximize, LpProblem, LpVariable, lpSum, LpBinary, LpStatus, value
-from excel_export import to_excel, openpyxl_formatting
+from excel_export import export_schedule
 from objectives import composite_objective
 from parameters.parametres_inf import (I, J, K, nb_shifts, nb_weeks, part_time_I, full_time_I,
-                                       staffing_constraints_week, staffing_constraints_weekend)
+                                       staffing_constraints_week, staffing_constraints_weekend, dest_file)
 import os
 
 
@@ -112,5 +112,5 @@ if __name__ == "__main__":
     variable_names = [f"x{i},{j},{k}" for i in I for j in J for k in K]
     values = [value(x[i, j, k]) for i in I for j in J for k in K]
     os.makedirs("output", exist_ok=True)
-    to_excel(values, variable_names, I, J, K, part_time_I, nb_shifts, dest_path="output/excel_inf.xlsx")
-    openpyxl_formatting(I, J, src_path="output/excel_inf.xlsx", dest_path="output/trame_inf.xlsx")
+    dest_path = os.path.join("output", dest_file)
+    export_schedule(values, variable_names, I, J, K, part_time_I, nb_shifts, dest_path)

@@ -9,3 +9,4 @@ part_time_I = range(1, nb_part_time_agents + 1)  # Indices of part-time agents i
 full_time_I = [i for i in I if i not in part_time_I]  # Indices of full-time agents in I
 staffing_constraints_week = [3, 2, 1]
 staffing_constraints_weekend = [3, 2, 0]
+dest_file = "nurses_schedule.xlsx"

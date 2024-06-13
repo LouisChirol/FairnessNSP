@@ -18,14 +18,14 @@ Two sets of agents are dealt with in the repo:
 - `objectives.py`: PuLP objective functions that can be used as an optimization criterion in the main scripts.
 - `parameters/parametres_inf.py`/`parameters/parametres_as.py`: parameters files to pilot the associated script.
 - `requirements.txt`: the list of dependencies with the versions used to lead the study.
-
+- `output/nurses_schedule.xlsx`/`output/caregivers_schedule.xlsx`: an example of output schedule with the provided parameters for the two teams of nurses and caregivers.
 
 # Dependencies
 [Pandas](https://pandas.pydata.org/), [OpenPyXL](https://openpyxl.readthedocs.io/en/stable/) and [PuLP](https://pypi.org/project/PuLP/).
 
 A quick way to install it is creating a virtual environment or a conda environment and to run:
 ```
-pip install -f requirements.txt
+pip install -r requirements.txt
 ```
 
 # Running the code
