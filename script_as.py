@@ -51,13 +51,13 @@ def populate_by_row(prob):
             prob += lpSum(x[i, j * 6, k] + x[i, (j + 1) * 6, k] for k in K[:nb_shifts]) == 1
         # C8 (no evening-rest-morning sequence)
         for j in range(2, len(J)):
-            prob += lpSum(x[i, j, k] - x[i, j-1, k] - x[i, j + 1, k] for k in K[:nb_shifts]) <= 0
+            prob += lpSum(x[i, j, k] - x[i, j - 1, k] - x[i, j + 1, k] for k in K[:nb_shifts]) <= 0
         # C9 (at least a day off per week)
         for j in range(1, len(J) - 5 + 1):
             prob += lpSum(x[i, j + index, k] for k in K[:nb_shifts] for index in range(5)) <= 4
         # C10 (days off constraint for full-time agents)
         prob += (lpSum(x[i, j, k] * (1 + int(j % 6 == 0)) for j in J for k in K[:nb_shifts])
-                 <= len(not_multiple_6) + 2 * len(multiple_6) - (9*(nb_weeks/4)) + 1)
+                 <= len(not_multiple_6) + 2 * len(multiple_6) - (9 * (nb_weeks / 4)) + 1)
     # C11  (no working day between two days off)
     for i in I:
         for j in J[:-2]:

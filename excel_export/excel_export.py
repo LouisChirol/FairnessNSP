@@ -30,8 +30,8 @@ def to_excel(
 
     # Convert list to DataFrame
     days = {1: 'Lundi', 2: 'Mardi', 3: 'Mercredi', 4: 'Jeudi', 5: 'Vendredi', 6: 'Week-end'}
-    columns = [f"Semaine_{(j//3) // 6 + 1} {days[(j//3) % 6 + 1]}"
-               for j in range(0, 3*len(J), 3)]
+    columns = [f"Semaine_{(j // 3) // 6 + 1} {days[(j // 3) % 6 + 1]}"
+               for j in range(0, 3 * len(J), 3)]
     index_names = []
     for i in I:
         if i in part_time_I:
@@ -47,7 +47,7 @@ def to_excel(
     weeks = max(J) // 6
     for w in range(weeks):
         for i, c in enumerate(df.columns):
-            if 'Samedi' in c and f"Semaine_{w+1} " in c:
+            if 'Samedi' in c and f"Semaine_{w + 1} " in c:
                 df.insert(i+1, c.replace('Samedi', 'Dimanche'), df[c])
 
     # Add a row for the number of nurses assigned per shift (excluding rest days)
@@ -85,30 +85,30 @@ def openpyxl_formatting(
     week_dict = {"Lundi": "L", "Mardi": "M", "Mercredi": "Me", "Jeudi": "J",
                  "Vendredi": "V", "Samedi": "S", "Dimanche": "D"}
 
-    for col in range(2, ws.max_column-4):
+    for col in range(2, ws.max_column - 4):
         # Extract week and day from the original cell
         original_header = ws.cell(row=2, column=col).value  # assuming original headers start from row 3 now
         if original_header:
             week, day = original_header.split(" ")
             ws.cell(row=header_row, column=col).value = week
-            ws.cell(row=header_row+1, column=col).value = week_dict[day]
+            ws.cell(row=header_row + 1, column=col).value = week_dict[day]
             # Manage merging for week
             if week != current_week:
                 if current_week is not None:
                     ws.merge_cells(start_row=header_row, start_column=week_start_col,
-                                   end_row=header_row, end_column=col-1)
+                                   end_row=header_row, end_column=(col - 1))
                 current_week = week
                 week_start_col = col
 
     # Final merge for the last week and day
     if current_week:
         ws.merge_cells(start_row=header_row, start_column=week_start_col,
-                       end_row=header_row, end_column=ws.max_column-5)
+                       end_row=header_row, end_column=(ws.max_column - 5))
 
     # Set column widths and general styles as before
     for i, col in enumerate(ws.columns):
         # Skip first and last columns
-        if i == 0 or i > ws.max_column-6:
+        if i == 0 or i > (ws.max_column - 6):
             continue
         ws.column_dimensions[get_column_letter(col[0].column)].width = 6
     # First col should be wider
@@ -118,7 +118,7 @@ def openpyxl_formatting(
     bold_centered = Font(bold=True)
     center_alignment = Alignment(horizontal='center', vertical='center')
     for col in range(2, ws.max_column + 1):
-        for row in [header_row, header_row+1]:
+        for row in [header_row, header_row + 1]:
             cell = ws.cell(row=row, column=col)
             cell.font = bold_centered
             cell.alignment = center_alignment
@@ -133,18 +133,18 @@ def openpyxl_formatting(
 
     # Paint the header rows (week and day) with in grey and light grey
     for col in range(2, ws.max_column + 1):
-        for row in [header_row, header_row+1]:
+        for row in [header_row, header_row + 1]:
             cell = ws.cell(row=row, column=col)
             cell.fill = openpyxl.styles.PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
 
     # Paint the four final rows with a light grey background
-    for row in range(ws.max_row-3, ws.max_row+1):
+    for row in range(ws.max_row - 3, ws.max_row + 1):
         for col in range(1, ws.max_column + 1):
             cell = ws.cell(row=row, column=col)
             cell.fill = openpyxl.styles.PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
     # Total row values in bold
     for col in range(2, ws.max_column - 4):
-        ws.cell(row=ws.max_row-3, column=col).font = bold_centered
+        ws.cell(row=ws.max_row - 3, column=col).font = bold_centered
 
     # Values with "R" in light blue
     for row in range(2, ws.max_row - 3):
@@ -164,8 +164,8 @@ def openpyxl_formatting(
             cell = ws.cell(row=row, column=col)
             cell.fill = openpyxl.styles.PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
     # Col Total in bold
-    for row in range(1, ws.max_row-3):
-        ws.cell(row=row, column=ws.max_column-4).font = bold_centered
+    for row in range(1, ws.max_row - 3):
+        ws.cell(row=row, column=ws.max_column - 4).font = bold_centered
 
     # Paint in orange the first shift of first agent
     multiple_6 = [j for j in J if j % 6 == 0]
@@ -173,7 +173,7 @@ def openpyxl_formatting(
     nb_value_cols = 2 * len(multiple_6) + len(not_multiple_6)
 
     for i in I:
-        ws.cell(row=2+i, column=(2+(7*(i-1))) % nb_value_cols).fill = openpyxl.styles.PatternFill(
+        ws.cell(row=2+i, column=(2 + (7 * (i - 1))) % nb_value_cols).fill = openpyxl.styles.PatternFill(
                                                                                                 start_color="FFA500",
                                                                                                 end_color="FFA500",
                                                                                                 fill_type="solid"
