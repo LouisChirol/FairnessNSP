@@ -45,16 +45,17 @@ This code is made available for use under the terms of the Creative Commons Attr
 
 
 # Citation
-If you use this work, consider citing our [paper](https://overleaf.com):
+If you use this work, consider citing our [paper available on ResearchGate: ](http://dx.doi.org/10.13140/RG.2.2.28819.90405):
 
 ```latex
-@article{chriol_zeroual_nsp,
-      title={Nurse shift problem (NSP) LP optimization},
-      author={Louis Chirol and Jad Zeroual},
-      year={2024},
-    %   eprint={2212.12794},
-    %   archivePrefix={arXiv},
-    %   primaryClass={cs.LG}
+@misc{https://doi.org/10.13140/rg.2.2.28819.90405,
+  doi = {10.13140/RG.2.2.28819.90405},
+  url = {https://rgdoi.net/10.13140/RG.2.2.28819.90405},
+  author = {Chirol,  Louis and Zeroual,  Jad},
+  language = {en},
+  title = {Using fairness as a constraint in the Nurse scheduling problem (NSP): the case of a French hospital},
+  publisher = {Unpublished},
+  year = {2024}
 }
 ```
 
