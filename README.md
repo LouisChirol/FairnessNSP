@@ -1,4 +1,4 @@
-# HospitalShift: A Nurse shift problem (NSP) LP optimization
+# FairnessNSP: A Nurse shift problem (NSP) ILP optimization with a fairness constraints
 This repo contains a code to build schedules for a set of agents under linear constraints, following this [paper](https://overleaf.com). We recommend reading it before running the code.
 The project revolves aroung the Integer Linear Programming (ILP) optimization problem formalism.
 The problem is solved using the [PuLP](https://pypi.org/project/PuLP/) library.
