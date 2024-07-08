@@ -1,5 +1,5 @@
 # FairnessNSP: A Nurse scheduling problem (NSP) ILP optimization with a fairness constraints
-This repo contains a code to build schedules for a set of agents under linear constraints, following this [paper](https://overleaf.com). We recommend reading it before running the code.
+This repo contains a code to build schedules for a set of agents under linear constraints, following our [paper](http://dx.doi.org/10.13140/RG.2.2.28819.90405). We recommend reading it before running the code.
 The project revolves aroung the Integer Linear Programming (ILP) optimization problem formalism.
 The problem is solved using the [PuLP](https://pypi.org/project/PuLP/) library.
 
