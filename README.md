@@ -16,26 +16,75 @@ The output `.xlsx` file should look like the following screenshot:
 
 
 # Overview of files
-- `script_inf.py`/`script_as.py` : main scripts to build a nurse/caregiver schedule.
-- `excel_export.py`: OpenPyXL functions to generate the output `.xlsx` schedule files.
-- `objectives.py`: PuLP objective functions that can be used as an optimization criterion in the main scripts.
-- `parameters/parametres_inf.py`/`parameters/parametres_as.py`: parameters files to pilot the associated script.
-- `requirements.txt`: the list of dependencies with the versions used to lead the study.
-- `output/nurses_schedule.xlsx`/`output/caregivers_schedule.xlsx`: an example of output schedule with the provided parameters for the two teams of nurses and caregivers.
+
+## Core Files
+- `scheduler_core.py`: Abstract base class for schedule optimization
+- `nurse_scheduler.py`/`caregiver_scheduler.py`: Agent-specific scheduler implementations
+- `config_manager.py`: Configuration management for different agent types
+- `excel_export.py`: OpenPyXL functions to generate the output `.xlsx` schedule files
+- `objectives.py`: PuLP objective functions for optimization criteria
+
+## Legacy Files (Original Implementation)
+- `script_inf.py`/`script_as.py`: Original scripts to build nurse/caregiver schedules
+- `parameters/parametres_inf.py`/`parameters/parametres_as.py`: Parameter files for the original scripts
+
+## Web Interface
+- `streamlit_app.py`: Streamlit web interface for easy scheduling
+- `start_streamlit.sh`: Startup script for the web interface
+- `.streamlit/config.toml`: Streamlit configuration
+
+## Output
+- `output/nurses_schedule.xlsx`/`output/caregivers_schedule.xlsx`: Example output schedules
 
 # Dependencies
-[Pandas](https://pandas.pydata.org/), [OpenPyXL](https://openpyxl.readthedocs.io/en/stable/) and [PuLP](https://pypi.org/project/PuLP/).
+[Pandas](https://pandas.pydata.org/), [OpenPyXL](https://openpyxl.readthedocs.io/en/stable/), [PuLP](https://pypi.org/project/PuLP/) and [Streamlit](https://streamlit.io/).
 
-A quick way to install it is creating a virtual environment or a conda environment and to run:
+## Installation with uv (Recommended)
+```bash
+uv sync
 ```
+
+## Installation with pip
+```bash
 pip install -r requirements.txt
 ```
 
 # Running the code
-To run the code and generate a nurse schedule, fill the `parameters/parametres_inf.py` file and run
+
+## Web Interface (Recommended)
+For the easiest experience, use the Streamlit web interface:
+
+```bash
+# Quick start
+./start_streamlit.sh
+
+# Or manually
+source .venv/bin/activate
+streamlit run streamlit_app.py
 ```
+
+Then open your browser to `http://localhost:8501`
+
+## Command Line Interface
+
+### Refactored Version (Recommended)
+```bash
+# Schedule nurses
+python schedule_nurses.py
+
+# Schedule caregivers  
+python schedule_caregivers.py
+
+# Schedule both
+python unified_scheduler.py
+```
+
+### Legacy Version
+To run the original code and generate a nurse schedule, fill the `parameters/parametres_inf.py` file and run:
+```bash
 python script_inf.py
 ```
+
 The logs will indicate if the problem was successfully resolved (logs will display `Optimal solution`) or if it failed (logs will display `Infeasible`).
 If the program is successful, the resulting `.xlsx` file will be stored in the `output` folder.
 
