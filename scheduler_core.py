@@ -90,12 +90,13 @@ class ScheduleOptimizer(ABC):
             prob += lpSum(x[i, j, k] for j in self.J for k in self.K[self.nb_shifts:]) == 0
         
         # C15: Part-time agent constraints
+        pt_days_off = self.config.get('part_time_days_off_per_week', 1)
         for i in self.part_time_I:
-            # One day pinned per week except for weekends
+            # N days pinned off per week, never on the weekend day
             for s in range(0, self.nb_weeks):
                 week_days = self.J[s * 6: s * 6 + 5]
                 weekend_day = self.J[s * 6 + 5]
-                prob += lpSum(x[i, j, k] for j in week_days for k in self.K[self.nb_shifts:]) == 1
+                prob += lpSum(x[i, j, k] for j in week_days for k in self.K[self.nb_shifts:]) == pt_days_off
                 prob += lpSum(x[i, weekend_day, k] for k in self.K[self.nb_shifts:]) == 0
             
             # Day pinned must not be a day off

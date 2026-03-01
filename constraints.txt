@@ -1,0 +1,65 @@
+We first study a nurse team of 11 evenly skilled agents over a 10-weeks long frame (70 days). For the sake
+of simplicity, we assume the frame begins on a Monday and ends on a Sunday. The service remains open on
+the week-end with a different regime.
+A day of work is divided in three shifts of 7h30: a morning shift from 6:00 a.m. to 1:30 p.m., an evening
+shift from 1:00 p.m. to 8:30 p.m., and a day shift from 10 a.m. to 5:30 p.m.
+The service of nurses is under the following constraints:
+1. On week days, the service needs 3 morning agents, 2 evening agent and 1 day agent;
+2. On week-end days, the service only needs 3 morning agents and 2 evening agents (no day agents are
+required);
+3. An agent can work at most one of the three daily shifts;
+4. There must be at least 12 consecutive hours of rest between two worked shifts: an agent cannot work
+in the evening and in the morning the following day;
+5. If an agent rests on a week day, their total rest must be over 36 consecutive hours. In other words, an
+agent cannot work in the evening, rest the following day and go back to work in the morning the day
+after;
+6. An agent cannot work more than 5 consecutive days;
+7. An agent, supposedly working 35 hours a week in average, cannot exceed 44 hours of work on rolling
+weeks, but there is no minimum. They can work 42 hours one week, and 23 hours the following week
+for instance;
+8. An agent must rest every other week-end and must work every other week-end;
+9. There must be 2 rest days for 7 worked days and an agent is granted an additional rest day every
+month. For instance, over 4 weeks, there are 2 week-ends of full rest (4 days), so 4 more rest days must
+be attributed over the week days on this period. Moreover, an extra rest day is granted, which makes
+a total of 9 rest days for 4 weeks of work, with 4 on week-end days among them;
+10. 3 of the agents have a part-time contract and work 80% of the time: this means they must have an
+extra rest day which cannot be taken on week-ends;
+11. There cannot be a worked day between two rest days;
+12. The schedule frame must be cyclical: the schedule of the second agent has to be the same as the first
+agent with a gap of 7 days, etc.;
+13. Extra-staff must be avoided on week-ends;
+14. There must be one and only one part-time extra rest day per week;
+15. Part-time extra rest days cannot be attributed on a day that is already a rest day, or a week-end day;
+
+We add a constraint in order to balance the output schedules : there should not be more than 3 consecutive
+days of rest. This constraint can prevent agents from having long vacations once and a sparse schedule for
+the rest of the frame.
+
+In order to simplify the problem, we can observe that it is possible to consider weeks of 6 days. Indeed, if
+a week-end is worked, it is worked entirely. Plus, because of Constraint 4, an agent working on Saturday
+evening can only work on Sunday evening (no day shift are required on week-end by virtue of Constraint 2).
+It is also necessary to have more agents working in the morning than in the evening. Consequently, we will
+assume that an agent working in the morning on Saturday, will have to work on Sunday morning as well.
+On the other hand, we can also notice that Constraints 6 and 7 are redundant. As a matter of fact, if an
+agent has one rest day in 5 days, then they will not work more than 48h during the week and will not work
+5 consecutive days either.
+Taking into consideration that the number of agents is odd, in combination with constraints 8 and 12,
+we can show that the week-end total staff number cannot be constant, so that it will be impossible to satisfy
+the constraint 13 strictly. In the general case, let’s assume that our odd number of agents is 2N + 1, with N
+being a positive integer number. Then, if agent 1 works on the first week-end, there will be N + 1 working
+agents on odd week-ends and N on even week-ends, and the opposite if agent 1 rests on week-end 1. An
+illustration is provided in figure 1.
+Nonetheless, Constraint 13 is not a constraint per se as it is a "best-effort" measure. It will be managed
+using the goal function of the optimization problem.
+One last observation that can be made is that for the sake of equity regarding the number of rested
+week-ends, the number of weeks must be even. This is once again a consequence of constraints 8 and 12.
+We further explain it in figure 2.
+
+
+As an extension to this work, we applied the same model to another service in the same hospital: the
+caregivers. This team is subject to slightly different constraints:
+• The team is composed of 9 evenly skilled agents, including one with a part-timer.
+• The service only needs 3 agents in the morning and 2 in the evening, every day.
+• It is expected that the staff cannot fill the service needs. Consequently, we consider an additional
+agent on week-ends to fill this gap. In practise, managers would ask for such an agent from the
+hospital rotation workforce.
